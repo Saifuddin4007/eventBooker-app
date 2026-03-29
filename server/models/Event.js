@@ -35,7 +35,7 @@ const eventSchema= new mongoose.Schema({
         required: true
     },
     imageUrl: {
-        trpe: String,
+        type: String,
         required: true
     },
     createdBy: {
