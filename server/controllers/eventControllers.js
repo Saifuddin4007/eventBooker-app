@@ -53,7 +53,10 @@ exports.createEvent= async (req,res) =>{
             category,
             totalSeats,
             ticketPrice,
-            imageUrl
+            availableSeats: totalSeats,
+            ticketPrice: ticketPrice || 0,
+            imageUrl: imageUrl || '',
+            createdBy: req.user.id
         });
         res.status(201).json(event);
     }catch(err){
@@ -62,26 +65,14 @@ exports.createEvent= async (req,res) =>{
 }
 
 exports.updateEvent= async (req,res) => {
-    try{
-        const {title, description, date, location, category, totalSeats, ticketPrice, imageUrl} = req.body;
-        const event= await Event. findByIdAndUpdate(req.params.id, {
-            title,
-            description,
-            date,
-            location,
-            category,
-            totalSeats,
-            ticketPrice,
-            imageUrl
-
-        });
-        if(!event){
-            return res.status(404).json({message: 'Event not found'});
-        }
-        res.status(201).json(event);
-    }catch(err){
-        res.status(500).json({message: err.message});
+    try {
+        const event = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        if (!event) return res.status(404).json({ message: 'Event not found' });
+        res.json(event);
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error', error: error.message });
     }
+
 }
 
 
