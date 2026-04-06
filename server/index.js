@@ -6,6 +6,10 @@ const authRoutes= require('./routes/auth');
 const eventRoutes= require('./routes/events');
 const bookingRoutes= require('./routes/bookings');
 const path= require('path');
+const dns = require('dns');
+
+// 🔥 Force Node.js to prefer IPv4 ALWAYS
+dns.setDefaultResultOrder('ipv4first');
 
 const _dirname= path.resolve();
 
