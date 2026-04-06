@@ -18,7 +18,7 @@ const app= express();
 const PORT= process.env.PORT || 3000;
 app.use(express.json());
 app.use(cors({
-    origin: 'http://localhost:5173', // your React app's exact origin
+    origin: 'https://eventbooker-app.onrender.com', // your React app's exact origin
     credentials: true,               // required because axios has withCredentials: true
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
