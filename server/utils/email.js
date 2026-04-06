@@ -10,7 +10,7 @@ const sendEmail = async (to, subject, htmlContent) => {
             'api-key': process.env.BREVO_API_KEY
         },
         body: JSON.stringify({
-            sender: { name: 'Eventora', email: process.env.EMAIL_USER },
+            sender: { name: 'EventBooker', email: process.env.EMAIL_USER },
             to: [{ email: to }],
             subject: subject,
             htmlContent: htmlContent
@@ -44,9 +44,9 @@ const sendOTPEmail = async (userEmail, otp, type) => {
     try {
         const title = type === 'account_verification'
             ? 'Verify your Eventora Account'
-            : 'Eventora Booking Verification';
+            : 'EventBooker Booking Verification';
         const msg = type === 'account_verification'
-            ? 'Use the OTP below to verify your new Eventora account.'
+            ? 'Use the OTP below to verify your new EventBooker account.'
             : 'Use the OTP below to confirm your event booking.';
 
         await sendEmail(
