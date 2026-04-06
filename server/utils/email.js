@@ -1,20 +1,26 @@
-const { TransactionalEmailsApi, SendSmtpEmail, ApiClient } = require('@getbrevo/brevo');
 const dotenv = require('dotenv');
 dotenv.config();
 
-// Initialize Brevo API client
-const apiClient = ApiClient.instance;
-apiClient.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
-
-const apiInstance = new TransactionalEmailsApi();
-
 const sendEmail = async (to, subject, htmlContent) => {
-    const sendSmtpEmail = new SendSmtpEmail();
-    sendSmtpEmail.subject = subject;
-    sendSmtpEmail.htmlContent = htmlContent;
-    sendSmtpEmail.sender = { name: 'Eventora', email: process.env.EMAIL_USER };
-    sendSmtpEmail.to = [{ email: to }];
-    await apiInstance.sendTransacEmail(sendSmtpEmail);
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'api-key': process.env.BREVO_API_KEY
+        },
+        body: JSON.stringify({
+            sender: { name: 'Eventora', email: process.env.EMAIL_USER },
+            to: [{ email: to }],
+            subject: subject,
+            htmlContent: htmlContent
+        })
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(`Brevo error: ${JSON.stringify(error)}`);
+    }
 };
 
 const sendBookingEmail = async (userEmail, userName, eventTitle) => {
