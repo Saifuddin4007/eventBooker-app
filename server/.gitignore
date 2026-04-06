@@ -1,0 +1,20 @@
+//All files git should ignore
+node_modules/
+.env
+dist/
+logs/
+*.log
+uploads/
+*.env
+
+# Ignore database files
+*.db
+# Ignore seed data file
+seed.js
+# Ignore coverage reports
+coverage/
+# Ignore IDE specific files
+.vscode/
+.idea/
+
+
