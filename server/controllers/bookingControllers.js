@@ -47,7 +47,7 @@ exports.bookEvent= async (req,res) =>{
             eventId,
             status: 'pending',
             paymentStatus: 'non_paid',
-            amount: 'event.ticketPrice'
+            amount: event.ticketPrice
         });
         await OTP.deleteMany({email: req.user.email, action: "event_booking"});
         
@@ -94,45 +94,46 @@ exports.confirmBooking= async (req,res) =>{
     }
 }
 
-exports.getMyBookings= async (req,res) =>{
-    try{
-        const bookings= await Booking.find({userId: req.user._id}).populate('eventId');
+
+
+exports.getMyBookings = async (req, res) => {
+    try {
+        const bookings = req.user.role === 'admin'
+            ? await Booking.find().populate('eventId').populate('userId', 'name email').sort({ createdAt: -1 })
+            : await Booking.find({ userId: req.user.id }).populate('eventId').sort({ createdAt: -1 });
         res.json(bookings);
-    }catch(err){
-        res.status(500).json({message: err.message});
-
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error', error: error.message });
     }
+};
 
-}
 
 
-exports.cancelBooking= async (req,res) =>{
-    try{
-        const booking= await Booking.findById(req.params.id);
-        if(!booking){
-            return res.status(404).json({message: "Booking not found"});
+exports.cancelBooking = async (req, res) => {
+    try {
+        const booking = await Booking.findById(req.params.id);
+        if (!booking) return res.status(404).json({ message: 'Booking not found' });
+        if (booking.userId.toString() !== req.user.id && req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Not authorized' });
         }
+        if (booking.status === 'cancelled') return res.status(400).json({ message: 'Already cancelled' });
 
-        if(booking.userId.toString() !== req.user._id.toString()){
-            return res.status(403).json({message: "You are not authorized to cancel this booking"});
-        }
+        const wasConfirmed = booking.status === 'confirmed';
 
-        if(booking.status=== 'confirmed'){
-            const event= await Event.findById(booking.eventId._id);
-            event.availableSeats +=1;
-            await event.save();
-        }
-
-        await booking.remove();
-        res.json({message: "Booking cancelled successfully"});
-
-        booking.status= 'cancelled';
+        booking.status = 'cancelled';
         await booking.save();
 
-    }catch(err){
-        res.status(500).json({message: err.message});
+        // Only restore the seat if it was actually confirmed and deducted
+        if (wasConfirmed) {
+            const event = await Event.findById(booking.eventId);
+            if (event) {
+                event.availableSeats += 1;
+                await event.save();
+            }
+        }
 
+        res.json({ message: 'Booking cancelled successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error', error: error.message });
     }
-}
-
-
+};
