@@ -29,7 +29,7 @@ exports.registerUser = async (req,res) =>{
 
         const user= await User.create({name, email, password: hashedPassword, role:'user', isVerified: false});
         
-        res.status(201).json({message:"User registered Successfully"});
+        // res.status(201).json({message:"User registered Successfully"});
 
         const otp= Math.floor(100000+Math.random()*900000).toString();
         console.log(`OTP for ${email}: ${otp}`);
